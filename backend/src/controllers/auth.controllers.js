@@ -68,7 +68,7 @@ export const login = async (req, res) => {
             return res.status(400).json({success: false, message: "Invalid credentials" })
         }
 
-         const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_EXPIRTY
         })
 
@@ -83,33 +83,38 @@ export const login = async (req, res) => {
 
         return res.status(201).json({success: true, message: "User Login successfully",
             user: {
-                id: newUser.id,
-                name: newUser.name,
-                email: newUser.email,
-                role: newUser.role,
-                image: newUser.image
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                image: user.image
             }
          })
 
         
     } catch (error) {
+        console.log("error", error)
         return res.status(500).json({success: false, message: "Something went wrong" })
     }
 }
 
 export const logout = async (req, res) => {
     try {
-        const cookieOptions = {
-            httpOnly: true,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV !== "development",
-            maxAge: 24 * 60 * 60 * 1000
-        }
+        res.clearCookie("jwt" , {
+            httpOnly:true,
+            sameSite:"strict",
+            secure:process.env.NODE_ENV !== "development",
+        })
 
-        res.clearCookie("jwt", token , cookieOptions)
-        res.status(204).json({success: true, message: "User logged out successfully"})
+        res.status(200).json({
+            success:true,
+            message:"User logged out successfully"
+        })
     } catch (error) {
-         return res.status(500).json({success: false, message: "Something went wrong" })
+        console.error("Error logging out user:", error);
+        res.status(500).json({
+            error:"Error logging out user"
+        })
     }
 }
 

@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { db } from "../libs/db.js";
 
 export const authMiddleware = async (req, res, next) => {
     try {
@@ -18,7 +19,7 @@ export const authMiddleware = async (req, res, next) => {
             email: true,
             name: true,
             role: true,
-            Image: true
+            image: true
         } });
 
         if(!user) {
