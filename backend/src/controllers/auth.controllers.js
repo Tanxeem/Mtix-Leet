@@ -52,8 +52,71 @@ export const register = async (req, res) => {
     }
 }
 
-export const login = async (req, res) => {}
+export const login = async (req, res) => {
+    const { email, password } = req.body
+    if(!email || !password) {
+        return res.status(400).json({success: false, message: "All fields are required" })
+    }
+    try {
+        const user = await db.user.findUnique({ where: { email } })
+        if(!user) {
+            return res.status(400).json({success: false, message: "User does not exist" })
+        }
 
-export const logout = async (req, res) => {}
+        const isMatch = await bcrypt.compare(password, user.password)
+        if(!isMatch) {
+            return res.status(400).json({success: false, message: "Invalid credentials" })
+        }
 
-export const check = async (req, res) => {}
+         const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRTY
+        })
+
+        const cookieOptions = {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV !== "development",
+            maxAge: 24 * 60 * 60 * 1000
+        }
+
+        res.cookie("jwt", token , cookieOptions)
+
+        return res.status(201).json({success: true, message: "User Login successfully",
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+                image: newUser.image
+            }
+         })
+
+        
+    } catch (error) {
+        return res.status(500).json({success: false, message: "Something went wrong" })
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        const cookieOptions = {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV !== "development",
+            maxAge: 24 * 60 * 60 * 1000
+        }
+
+        res.clearCookie("jwt", token , cookieOptions)
+        res.status(204).json({success: true, message: "User logged out successfully"})
+    } catch (error) {
+         return res.status(500).json({success: false, message: "Something went wrong" })
+    }
+}
+
+export const check = async (req, res) => {
+    try {
+        return res.status(200).json({success: true, message: "User authenticated in successfully", user: req.user})
+    } catch (error) {
+         return res.status(500).json({success: false, message: "Something went wrong" })
+    }
+}

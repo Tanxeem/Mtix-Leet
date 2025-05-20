@@ -27,5 +27,11 @@
 ### if you want generate rendion secret key
 * openssl rand -hex 32
 
+### create all controllers
+### create schema Problems and save every changin run this command
+
+* npx prisma generate
+* npx prisma migrate dev
+* npx prisma db push
 
 
