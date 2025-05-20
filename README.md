@@ -8,6 +8,7 @@
 * npm i express
 * npm i jsonwebtoken
 * npm i bcryptjs
+* npm i cookie-parser
 * npm i prisma
 * npm i @prisma/client
 * npx prisma init
@@ -20,4 +21,11 @@
 ### Create DB.js database and then run commad
 * npx prisma migrate dev
 * npx prisma db push
+### create Controllers
+* Register Controllers
+
+### if you want generate rendion secret key
+* openssl rand -hex 32
+
+
 

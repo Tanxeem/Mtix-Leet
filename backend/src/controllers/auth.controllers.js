@@ -1,6 +1,56 @@
 import bcrypt from "bcryptjs";
+import {db} from "../libs/db.js"
+import { UserRole } from "../generated/prisma/index.js";
+import jwt from "jsonwebtoken";
 
-export const register = async (req, res) => {}
+export const register = async (req, res) => {
+    const { name, email, password } = req.body
+    if(!name || !email || !password) {
+        return res.status(400).json({success: false, message: "All fields are required" })
+    }
+
+    try {
+        const exisitinguser = await db.user.findUnique({ where: { email } })
+        if(exisitinguser) {
+            return res.status(400).json({success: false, message: "User already exists" })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10)
+        const newUser = await db.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: UserRole.USER
+            }
+        })
+
+        const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRTY
+        })
+
+        const cookieOptions = {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV !== "development",
+            maxAge: 24 * 60 * 60 * 1000
+        }
+
+        res.cookie("jwt", token , cookieOptions)
+
+        return res.status(201).json({success: true, message: "User created successfully",
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+                image: newUser.image
+            }
+         })
+    } catch (error) {
+        return res.status(500).json({success: false, message: "Something went wrong" })
+    }
+}
 
 export const login = async (req, res) => {}
 
