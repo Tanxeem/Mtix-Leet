@@ -32,3 +32,18 @@ export const authMiddleware = async (req, res, next) => {
         return res.status(401).json({success: false, message: "Unauthorized" })
     }
 }
+
+
+export const checkAdmin = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const user = await db.user.findUnique({ where: { id: userId }, select: { role: true } });
+        if(user.role !== "ADMIN") {
+            return res.status(401).json({success: false, message: "Unauthorized" })
+        }
+        next();
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({success: false, message: "Unauthorized" })
+    }
+}

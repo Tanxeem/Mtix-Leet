@@ -34,4 +34,7 @@
 * npx prisma migrate dev
 * npx prisma db push
 
+### create Problems Controller create get delete update
+
+
 
