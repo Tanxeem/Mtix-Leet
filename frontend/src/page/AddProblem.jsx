@@ -1,8 +1,12 @@
-import React from 'react'
+import CreateProblemForm from '../components/CreateProblemForm'
+import { useAuthStore } from '../store/useAuthStore.js';
 
 function AddProblem() {
+  const {authUser, isCheckingAuth} = useAuthStore();
   return (
-    <div>AddProblem</div>
+    <div>
+      <CreateProblemForm/>
+    </div>
   )
 }
 
